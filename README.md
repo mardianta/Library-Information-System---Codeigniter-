@@ -43,7 +43,7 @@ Pastikan perangkat Anda sudah terinstal:
 ### Langkah 1 — Clone Repository
 
 ```bash
-git clone https://github.com/<username>/library_information_system.git
+git clone https://github.com/grayos14/library_information_system
 cd library_information_system
 ```
 
