@@ -218,6 +218,7 @@ Folder ini berisi panduan langkah-demi-langkah untuk **mahasiswa yang mengerjaka
 | [`cara-2-spark-cli-master-member.md`](tutorial/cara-2-spark-cli-master-member.md) | Cara Spark CLI: membuat modul Member via terminal |
 | [`tutorial-laporan-data-buku.md`](tutorial/tutorial-laporan-data-buku.md) | Menambah menu Laporan dan fitur Cetak PDF |
 | [`tutorial-cetak-label-buku.md`](tutorial/tutorial-cetak-label-buku.md) | Membuat fitur cetak label/stiker buku |
+| [`tutorial-sdlc-fitur-peminjaman-buku.md`](tutorial/tutorial-sdlc-fitur-peminjaman-buku.md) | Membangun fitur peminjaman buku mengikuti alur SDLC |
 
 ### Penjelasan Isi Tutorial
 
@@ -239,6 +240,17 @@ Panduan menambah menu **Laporan** di sidebar dan fitur **Cetak PDF** data buku. 
 
 #### `tutorial-cetak-label-buku.md`
 Tutorial lanjutan dari Laporan. Menjelaskan cara membuat fitur **cetak label buku** — stiker yang ditempel di punggung atau sampul buku berisi kode, judul, penulis, dan informasi lainnya. Ada dua mode cetak: semua buku sekaligus dan satu buku saja.
+
+#### `tutorial-sdlc-fitur-peminjaman-buku.md`
+Tutorial membangun **fitur peminjaman buku dari nol** mengikuti alur **SDLC (Software Development Life Cycle)**. Setiap fitur dibangun melalui empat tahapan: Analisis, Desain, Implementasi, dan Pengujian. Tutorial ini mencakup:
+
+- **Fitur 1 — Pencarian Anggota:** Mencari data anggota berdasarkan kode menggunakan AJAX (tanpa refresh halaman)
+- **Fitur 2 — Detail Informasi Anggota:** Menampilkan data lengkap anggota setelah ditemukan
+- **Fitur 3 — Tambah Peminjaman Buku:** Form modal untuk mencatat peminjaman, lengkap dengan kalkulasi tanggal kembali otomatis dan validasi ketersediaan buku
+- **Fitur 4 — Tombol Pengembalian Buku:** Mencatat pengembalian buku dengan konfirmasi sebelum proses
+- **Fitur 5 — Denda Keterlambatan:** Petugas menginput nominal denda saat pengembalian; sistem menampilkan info keterlambatan secara otomatis
+
+Cocok untuk mahasiswa yang ingin memahami cara membangun fitur web secara terstruktur dan profesional, termasuk pembuatan migration, model (JOIN, generate kode unik), controller (AJAX handler), dan view dengan JavaScript dinamis.
 
 ---
 
