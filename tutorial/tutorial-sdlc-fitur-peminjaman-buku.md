@@ -390,8 +390,24 @@ class PeminjamanModel extends Model
     ];
 
     protected $useTimestamps = true; // aktifkan created_at dan updated_at otomatis
+
+    // Ambil semua peminjaman milik satu anggota (JOIN dengan tabel books)
+    public function getByMember($id_member)
+    {
+        return $this->db->table('peminjaman p')
+            ->select('p.*, b.code_book, b.title_book, b.author_book')
+            ->join('books b', 'b.id_book = p.id_book')
+            ->where('p.id_member', $id_member)
+            ->orderBy('p.tanggal_pinjam', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 }
 ```
+
+> **Kenapa `getByMember()` sudah ada di sini?** Karena method `getAnggota()` di Controller (langkah berikutnya) langsung memanggil fungsi ini untuk mengambil riwayat peminjaman anggota sekaligus saat pencarian. Jika fungsinya belum ada, aplikasi akan error saat dicoba.
+
+> **Apa itu JOIN?** JOIN adalah cara menggabungkan data dari dua tabel sekaligus. Di sini kita ambil data peminjaman sekaligus judul dan pengarang buku dari tabel `books` — tanpa perlu query dua kali. Seperti VLOOKUP di Excel, tapi untuk database.
 
 #### Langkah 3.2 — Buat Method `getAnggota()` di Controller
 
@@ -863,23 +879,11 @@ Tabel update    error di modal
 
 ### Tahap 3: Implementasi
 
-#### Langkah 3.1 — Tambah Method `getByMember()` dan `generateCode()` ke Model
+#### Langkah 3.1 — Tambah Method `generateCode()` ke Model
 
-Perbarui `app/Models/PeminjamanModel.php`:
+Method `getByMember()` sudah dibuat di Fitur 1. Sekarang tambahkan method berikut di dalam class `PeminjamanModel` di `app/Models/PeminjamanModel.php`:
 
 ```php
-// Ambil semua peminjaman milik satu anggota (JOIN dengan tabel books)
-public function getByMember($id_member)
-{
-    return $this->db->table('peminjaman p')
-        ->select('p.*, b.code_book, b.title_book, b.author_book')
-        ->join('books b', 'b.id_book = p.id_book')
-        ->where('p.id_member', $id_member)
-        ->orderBy('p.tanggal_pinjam', 'DESC')
-        ->get()
-        ->getResultArray();
-}
-
 // Buat kode peminjaman unik berurutan per hari
 // Contoh hasil: PJM202606170001, PJM202606170002, dst.
 public function generateCode()
@@ -906,7 +910,7 @@ public function generateCode()
 }
 ```
 
-> **Apa itu JOIN?** JOIN adalah cara menggabungkan data dari dua tabel sekaligus. Pada `getByMember()`, kita mengambil data peminjaman sekaligus mengambil judul dan pengarang buku dari tabel `books` — tanpa perlu query dua kali. Seperti VLOOKUP di Excel, tapi untuk dua arah.
+> **Apa itu `str_pad`?** Fungsi untuk memastikan angka urutan selalu 4 digit — angka `1` jadi `"0001"`, angka `12` jadi `"0012"`. Hasilnya: kode seperti `PJM202606170001` tetap rapi dan mudah diurutkan.
 
 #### Langkah 3.2 — Tambah Method `store()` ke Controller
 
