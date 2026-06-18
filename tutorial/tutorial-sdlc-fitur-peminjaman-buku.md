@@ -392,15 +392,9 @@ class PeminjamanModel extends Model
     protected $useTimestamps = true; // aktifkan created_at dan updated_at otomatis
 
     // Ambil semua peminjaman milik satu anggota (JOIN dengan tabel books)
-    public function getByMember($id_member)
+    public function getByMember(int $idMember): array
     {
-        return $this->db->table('peminjaman p')
-            ->select('p.*, b.code_book, b.title_book, b.author_book')
-            ->join('books b', 'b.id_book = p.id_book')
-            ->where('p.id_member', $id_member)
-            ->orderBy('p.tanggal_pinjam', 'DESC')
-            ->get()
-            ->getResultArray();
+        return $this->where('id_member', $idMember)->findAll();
     }
 }
 ```
