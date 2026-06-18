@@ -1,5 +1,8 @@
 # Tutorial SDLC: Membangun Fitur Peminjaman Buku dari Nol
 
+> **Untuk siapa dokumen ini?**
+> Dokumen ini ditulis untuk mahasiswa yang sedang belajar membuat sistem informasi, khususnya yang **bukan berasal dari jurusan IT**. Tidak ada asumsi bahwa kamu sudah mahir coding. Setiap langkah dijelaskan dengan bahasa sehari-hari dan analogi yang mudah dipahami.
+>
 > **Apa yang akan kamu pelajari?**
 > Cara membangun fitur peminjaman buku secara bertahap mengikuti alur **SDLC (Software Development Life Cycle)** — yaitu cara profesional dalam membangun perangkat lunak, mulai dari perencanaan hingga pengujian.
 
@@ -564,7 +567,7 @@ Untuk bagian pencarian, tuliskan kode HTML berikut:
         .then(response => response.json())  // ubah respons menjadi objek JavaScript
         .then(function(res) {
             if (res.success) {
-                tampilkanInfoAnggota(res.member);
+                // Tampilkan info anggota — logikanya akan ditambahkan di Fitur 2
             } else {
                 // Tampilkan pesan error
                 document.getElementById('pesan-error-anggota').textContent = res.message;
@@ -613,7 +616,7 @@ Fitur ini adalah kelanjutan langsung dari Fitur 1. Setelah server mengembalikan 
 | Komponen | File | Fungsi |
 |----------|------|--------|
 | View | `app/Views/peminjaman/index.php` | Tambah area HTML untuk info anggota |
-| JavaScript | Dalam file View yang sama | Fungsi `tampilkanInfoAnggota()` |
+| JavaScript | Dalam file View yang sama | Logika tampil info anggota di dalam `cariAnggota()` |
 
 Tidak perlu perubahan di Controller atau Model karena data sudah dikembalikan pada Fitur 1.
 
@@ -706,42 +709,29 @@ Ganti bagian `<div id="info-anggota">` yang kosong sebelumnya dengan:
 
 > **Kenapa pakai `<span id="...">`?** `<span>` adalah elemen HTML kosong yang digunakan sebagai "wadah" untuk diisi teks oleh JavaScript. Setiap span punya ID unik sehingga JavaScript bisa menemukan dan mengisinya dengan tepat.
 
-#### Langkah 3.2 — Tambah Fungsi JavaScript `tampilkanInfoAnggota()`
+#### Langkah 3.2 — Tambah Logika Tampilan Info Anggota di `cariAnggota()`
 
-Tambahkan fungsi ini di dalam tag `<script>`:
-
-```javascript
-function tampilkanInfoAnggota(member) {
-    // Simpan ID member untuk digunakan saat tambah peminjaman nanti
-    currentMemberId = member.id_member;
-
-    // Isi setiap span dengan data dari objek member
-    document.getElementById('anggota-kode').textContent    = member.code_member;
-    document.getElementById('anggota-nama').textContent    = member.name_member;
-    document.getElementById('anggota-email').textContent   = member.email_member  || '-';
-    document.getElementById('anggota-telepon').textContent = member.phone_member  || '-';
-    document.getElementById('anggota-alamat').textContent  = member.address_member || '-';
-    document.getElementById('anggota-join').textContent    = member.join_date     || '-';
-
-    // Simpan id_member di input tersembunyi (akan dipakai saat simpan peminjaman)
-    document.getElementById('hidden-id-member').value = member.id_member;
-
-    // Tampilkan area info anggota (ubah dari display:none ke display:block)
-    document.getElementById('info-anggota').style.display = 'block';
-}
-```
-
-> **Apa arti `|| '-'`?** Operator `||` artinya "atau". `member.email_member || '-'` artinya: "Tampilkan email anggota. Kalau emailnya kosong (null/undefined), tampilkan tanda `-` sebagai gantinya." Ini mencegah tampilnya tulisan "undefined" di layar.
-
-#### Langkah 3.3 — Perbarui Fungsi `cariAnggota()` untuk Memanggil `tampilkanInfoAnggota()`
-
-Ubah bagian `if (res.success)` di fungsi `cariAnggota()`:
+Tidak perlu fungsi terpisah. Langsung isi info anggota di dalam blok `if (res.success)` pada fungsi `cariAnggota()`:
 
 ```javascript
 .then(function(res) {
     if (res.success) {
-        tampilkanInfoAnggota(res.member);  // panggil fungsi yang baru dibuat
-        // (Tabel peminjaman akan ditampilkan di Fitur 3)
+        const m = res.member;
+
+        // Simpan id_member untuk dipakai saat simpan peminjaman nanti
+        currentMemberId = m.id_member;
+        document.getElementById('hidden-id-member').value = m.id_member;
+
+        // Isi setiap span dengan data dari objek member
+        document.getElementById('anggota-kode').textContent    = m.code_member;
+        document.getElementById('anggota-nama').textContent    = m.name_member;
+        document.getElementById('anggota-email').textContent   = m.email_member   || '-';
+        document.getElementById('anggota-telepon').textContent = m.phone_member   || '-';
+        document.getElementById('anggota-alamat').textContent  = m.address_member || '-';
+        document.getElementById('anggota-join').textContent    = m.join_date      || '-';
+
+        // Tampilkan area info anggota (ubah dari display:none ke display:block)
+        document.getElementById('info-anggota').style.display = 'block';
     } else {
         document.getElementById('pesan-error-anggota').textContent = res.message;
         document.getElementById('info-anggota-error').style.display = 'block';
@@ -749,17 +739,25 @@ Ubah bagian `if (res.success)` di fungsi `cariAnggota()`:
 });
 ```
 
-Tambahkan juga variabel global dan input tersembunyi di awal JavaScript:
+> **Apa arti `|| '-'`?** Operator `||` artinya "atau". `m.email_member || '-'` artinya: "Tampilkan email anggota. Kalau emailnya kosong (null/undefined), tampilkan tanda `-` sebagai gantinya." Ini mencegah tampilnya tulisan "undefined" di layar.
+
+#### Langkah 3.3 — Tambah Variabel Global dan Input Tersembunyi
+
+Tambahkan variabel `currentMemberId` di bagian paling atas blok `<script>`:
 
 ```javascript
 let currentMemberId = null; // menyimpan id_member yang sedang aktif
 ```
 
-Dan di bagian HTML (di dalam form modal yang akan dibuat di Fitur 3):
+> **Kenapa perlu variabel global?** Variabel ini menyimpan ID anggota yang sedang aktif. Dibutuhkan di Fitur 3 saat menyimpan data peminjaman — agar sistem tahu peminjaman ini milik siapa tanpa harus mencari ulang.
+
+Tambahkan input tersembunyi di bagian HTML (di dalam form modal yang akan dibuat di Fitur 3):
 
 ```html
 <input type="hidden" id="hidden-id-member">
 ```
+
+> **Input tersembunyi (`type="hidden"`)** tidak terlihat di halaman, tapi nilainya ikut terkirim saat form disubmit. Ini cara umum menyimpan ID yang perlu dikirim ke server tanpa ditampilkan ke pengguna.
 
 ---
 
@@ -1184,23 +1182,6 @@ document.getElementById('btn-simpan-peminjaman').addEventListener('click', funct
     });
 });
 
-// Perbarui tampilan dan tabel setelah anggota ditemukan
-function tampilkanInfoAnggota(member, peminjaman) {
-    currentMemberId = member.id_member;
-    document.getElementById('anggota-kode').textContent    = member.code_member;
-    document.getElementById('anggota-nama').textContent    = member.name_member;
-    document.getElementById('anggota-email').textContent   = member.email_member   || '-';
-    document.getElementById('anggota-telepon').textContent = member.phone_member   || '-';
-    document.getElementById('anggota-alamat').textContent  = member.address_member || '-';
-    document.getElementById('anggota-join').textContent    = member.join_date      || '-';
-    document.getElementById('hidden-id-member').value      = member.id_member;
-
-    document.getElementById('info-anggota').style.display    = 'block';
-    document.getElementById('card-peminjaman').style.display = 'block';
-
-    renderTabel(peminjaman);
-}
-
 // Render (gambar ulang) isi tabel peminjaman dari array data
 function renderTabel(peminjaman) {
     const tbody = document.getElementById('tbody-peminjaman');
@@ -1265,11 +1246,22 @@ function showToast(type, pesan) {
 }
 ```
 
-> **Perbarui fungsi `cariAnggota()`** — sekarang fungsi `tampilkanInfoAnggota()` menerima dua argumen (member + peminjaman):
+> **Perbarui blok `if (res.success)` di `cariAnggota()`** — tambahkan dua baris untuk menampilkan card peminjaman dan merender tabel:
 >
 > ```javascript
 > if (res.success) {
->     tampilkanInfoAnggota(res.member, res.peminjaman); // kirim keduanya
+>     const m = res.member;
+>     currentMemberId = m.id_member;
+>     document.getElementById('hidden-id-member').value      = m.id_member;
+>     document.getElementById('anggota-kode').textContent    = m.code_member;
+>     document.getElementById('anggota-nama').textContent    = m.name_member;
+>     document.getElementById('anggota-email').textContent   = m.email_member   || '-';
+>     document.getElementById('anggota-telepon').textContent = m.phone_member   || '-';
+>     document.getElementById('anggota-alamat').textContent  = m.address_member || '-';
+>     document.getElementById('anggota-join').textContent    = m.join_date      || '-';
+>     document.getElementById('info-anggota').style.display    = 'block';
+>     document.getElementById('card-peminjaman').style.display = 'block'; // ← tambahkan
+>     renderTabel(res.peminjaman);                                         // ← tambahkan
 > }
 > ```
 
@@ -1996,7 +1988,7 @@ Gunakan checklist ini untuk memastikan tidak ada yang terlewat:
 | Halaman 404 saat buka `/peminjaman` | Route belum didaftarkan | Cek `Routes.php`, tambahkan `$routes->get('/peminjaman', ...)` |
 | "Anggota tidak ditemukan" padahal kode benar | Tabel `members` kosong atau kode berbeda | Cek di phpMyAdmin tabel `members`, pastikan data ada |
 | "Buku tidak ditemukan" | Kode buku salah atau tabel `books` kosong | Cek tabel `books` di phpMyAdmin |
-| Tabel peminjaman tidak muncul di halaman | `card-peminjaman` masih `display:none` | Pastikan fungsi `tampilkanInfoAnggota()` mengubah stylenya |
+| Tabel peminjaman tidak muncul di halaman | `card-peminjaman` masih `display:none` | Pastikan di dalam `cariAnggota()` ada baris `document.getElementById('card-peminjaman').style.display = 'block'` |
 | Data tidak tersimpan meski tidak ada error | `$allowedFields` di Model tidak lengkap | Pastikan semua nama kolom ada di array `$allowedFields` |
 | Tabel `peminjaman` tidak ada di database | Migration belum dijalankan | Jalankan `php spark migrate` di terminal |
 | Error "Class PeminjamanController not found" | Namespace salah atau file belum disimpan | Cek baris pertama: `namespace App\Controllers;` dan nama file harus `PeminjamanController.php` |
