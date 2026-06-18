@@ -1,8 +1,5 @@
 # Tutorial SDLC: Membangun Fitur Peminjaman Buku dari Nol
 
-> **Untuk siapa dokumen ini?**
-> Dokumen ini ditulis untuk mahasiswa yang sedang belajar membuat sistem informasi, khususnya yang **bukan berasal dari jurusan IT**. Tidak ada asumsi bahwa kamu sudah mahir coding. Setiap langkah dijelaskan dengan bahasa sehari-hari dan analogi yang mudah dipahami.
->
 > **Apa yang akan kamu pelajari?**
 > Cara membangun fitur peminjaman buku secara bertahap mengikuti alur **SDLC (Software Development Life Cycle)** — yaitu cara profesional dalam membangun perangkat lunak, mulai dari perencanaan hingga pengujian.
 
