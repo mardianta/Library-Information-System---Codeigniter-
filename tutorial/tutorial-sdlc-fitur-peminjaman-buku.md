@@ -873,9 +873,46 @@ Tabel update    error di modal
 
 ### Tahap 3: Implementasi
 
-#### Langkah 3.1 — Tambah Method `generateCode()` ke Model
+#### Langkah 3.1 — Perbarui `getByMember()` dan Tambah `generateCode()` ke Model
 
-Method `getByMember()` sudah dibuat di Fitur 1. Sekarang tambahkan method berikut di dalam class `PeminjamanModel` di `app/Models/PeminjamanModel.php`:
+**Perbarui method `getByMember()` di `app/Models/PeminjamanModel.php`:**
+
+Di Fitur 1, method `getByMember()` dibuat dengan query sederhana yang hanya mengambil kolom dari tabel `peminjaman`:
+
+```php
+// Versi Fitur 1 — BELUM LENGKAP untuk Fitur 3
+public function getByMember(int $idMember): array
+{
+    return $this->where('id_member', $idMember)->findAll();
+}
+```
+
+Pada Fitur 3 ini, tabel di halaman perlu menampilkan kolom **Kode Buku**, **Judul Buku**, dan **Pengarang** — data yang tersimpan di tabel `books`, bukan di `peminjaman`. Karena itu, method ini harus diperbarui menggunakan **JOIN** agar kedua tabel digabungkan dalam satu query.
+
+**Ganti implementasi `getByMember()` menjadi:**
+
+```php
+public function getByMember(int $idMember): array
+{
+    return $this->db->table('peminjaman')
+        ->select('peminjaman.*, books.code_book, books.title_book, books.author_book')
+        ->join('books', 'books.id_book = peminjaman.id_book', 'left')
+        ->where('peminjaman.id_member', $idMember)
+        ->orderBy('peminjaman.id_peminjaman', 'DESC')
+        ->get()
+        ->getResultArray();
+}
+```
+
+> **Mengapa perlu diperbarui?** Tanpa JOIN, field `code_book`, `title_book`, dan `author_book` tidak ada di data yang dikembalikan ke JavaScript. Akibatnya kolom-kolom tersebut di tabel halaman menampilkan `undefined`. JOIN menggabungkan data dari kedua tabel sekaligus dalam satu query.
+
+> **Kenapa `LEFT JOIN`?** Parameter ketiga `'left'` berarti LEFT JOIN — baris peminjaman tetap ditampilkan meskipun buku terkait tidak ditemukan di tabel `books`. Lebih aman daripada INNER JOIN yang akan menghilangkan baris jika data buku sudah dihapus.
+
+> **Perbedaan `$this->db->table()` vs `$this->where()->findAll()`:** `findAll()` adalah cara singkat bawaan Model yang hanya bisa query satu tabel. Untuk query yang melibatkan JOIN ke tabel lain, kita perlu menggunakan Query Builder (`$this->db->table()`) secara manual.
+
+---
+
+Sekarang tambahkan method `generateCode()` berikut di dalam class `PeminjamanModel` di `app/Models/PeminjamanModel.php`: 
 
 ```php
 // Buat kode peminjaman unik berurutan per hari
